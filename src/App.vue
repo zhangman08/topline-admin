@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name:'App',
+  name: 'App',
   data () {
     return {}
   }
@@ -14,5 +14,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
+#app {
+  height: 100%;
+}
 </style>

@@ -25,6 +25,7 @@
 </template>
 <script>
 import axios from 'axios'
+import '@/vendor/gt'
 export default {
   name: 'AppLogin',
   data () {
@@ -45,7 +46,21 @@ export default {
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
       }).then(res => {
-        console.log(res.data)
+        const { data } = res.data
+        window.initGeetest({
+          gt: data.gt,
+          challenge: data.challenge,
+          offline: !data.success,
+          new_captcha: data.new_captcha,
+          product: 'bind'
+        }, function (captchaObj) {
+          captchaObj.onReady(function () {
+            captchaObj.verify()
+          }).onSuccess(function () {
+            console.log(captchaObj.getValidate())
+          }).onError(function () {
+          })
+        })
       })
     }
   }

@@ -87,9 +87,9 @@ export default {
           new_captcha: data.new_captcha,
           product: 'bind'
         }, (captchaObj) => {
-          captchaObj.onReady(function () {
+          captchaObj.onReady(() => {
             captchaObj.verify()
-          }).onSuccess( () => {
+          }).onSuccess(() => {
             const {
               geetest_challenge: challenge,
               geetest_seccode: seccode,
@@ -114,11 +114,13 @@ export default {
     submitLogin () {
       axios({
         method: 'POST',
-        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        url: 'http://toutiao.course.itcast.cn/mp/v1_0/authorizations',
         data: this.form
       })
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
+          const userInfo = res.data.data
+          window.localStorage.setItem('user_info', JSON.stringify(userInfo))
           this.$message({
             message: '登录成功',
             type: 'success'

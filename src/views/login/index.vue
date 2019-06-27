@@ -34,8 +34,8 @@
     </div>
 </template>
 <script>
-import axios from 'axios'
 import '@/vendor/gt'
+import { saveUser } from '@/utils/auth'
 const initCodeTimeSeconds = 60
 export default {
   name: 'AppLogin',
@@ -73,12 +73,12 @@ export default {
         this.submitLogin()
       })
     },
-    handleSendCode () {
+    async handleSendCode () {
       const { mobile } = this.form
-      axios({
+      const res = await this.$http({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
-      }).then(res => {
+        url: `/captchas/${mobile}`
+      })
         const { data } = res.data
         window.initGeetest({
           gt: data.gt,
@@ -86,7 +86,7 @@ export default {
           offline: !data.success,
           new_captcha: data.new_captcha,
           product: 'bind'
-        }, (captchaObj) => {
+        }, captchaObj => {
           captchaObj.onReady(() => {
             captchaObj.verify()
           }).onSuccess(() => {
@@ -97,7 +97,7 @@ export default {
               captchaObj.getValidate()
             axios({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              url: `/sms/codes/${mobile}`,
               params: {
                 challenge,
                 validate,
@@ -109,26 +109,28 @@ export default {
           }).onError(function () {
           })
         })
-      })
     },
-    submitLogin () {
-      axios({
+    async submitLogin () {
+      try {
+      const res = await this.$http({
         method: 'POST',
-        url: 'http://toutiao.course.itcast.cn/mp/v1_0/authorizations',
+        // url: 'http://toutiao.course.itcast.cn/mp/v1_0/authorizations',
+        url: '/authorizations',
         data: this.form
       })
-        .then(res => {
-          // console.log(res.data)
-          const userInfo = res.data.data
-          window.localStorage.setItem('user_info', JSON.stringify(userInfo))
+      const userInfo = res.data.data
+          // window.localStorage.setItem('user_info', JSON.stringify(userInfo))
+          saveUser(userInfo)
           this.$message({
             message: '登录成功',
             type: 'success'
           })
-        })
-        .catch((e) => {
+          this.$router.push({
+            name: 'home'
+          })
+      } catch (err) {
           this.$message.error('手机号或验证码错误!')
-        })
+      }
     },
     codeCountDown () {
       this.codeTimer = window.setInterval(() => {

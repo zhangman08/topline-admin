@@ -19,6 +19,7 @@
         <el-col :offset="2" :span="8">
           <el-button @click="handleSendCode"
           :disabled="!!codeTimer"
+          :loading="codeLoading"
           >{{ codeTimer ? `剩余${codeTimeSeconds}秒` : '获取验证码' }}</el-button>
         </el-col>
   </el-form-item>
@@ -27,7 +28,10 @@
    <span class="agree-text">我已阅读并同意<a href="#">用户协议</a>和 <a href="#">隐私条款</a></span>
   </el-form-item>
   <el-form-item>
-    <el-button class="btn-login" type="primary" @click="handleLogin">登录</el-button>
+    <el-button class="btn-login"
+    type="primary"
+    @click="handleLogin"
+    :loading="loginLoading">登录</el-button>
   </el-form-item>
 </el-form>
 </div>
@@ -61,7 +65,9 @@ export default {
         ]
       },
       codeTimer: null,
-      codeTimeSeconds: initCodeTimeSeconds
+      codeTimeSeconds: initCodeTimeSeconds,
+      loginLoading: false,
+      codeLoading:false
     }
   },
   methods: {
@@ -74,12 +80,12 @@ export default {
       })
     },
     async handleSendCode () {
+      this.codeLoading = true
       const { mobile } = this.form
-      const res = await this.$http({
+      const data = await this.$http({
         method: 'GET',
         url: `/captchas/${mobile}`
       })
-        const { data } = res.data
         window.initGeetest({
           gt: data.gt,
           challenge: data.challenge,
@@ -88,6 +94,7 @@ export default {
           product: 'bind'
         }, captchaObj => {
           captchaObj.onReady(() => {
+            this.codeLoading = false
             captchaObj.verify()
           }).onSuccess(() => {
             const {
@@ -102,7 +109,7 @@ export default {
                 challenge,
                 validate,
                 seccode
-              }
+              },
             }).then(res => {
               this.codeCountDown()
             })
@@ -112,13 +119,13 @@ export default {
     },
     async submitLogin () {
       try {
-      const res = await this.$http({
+        this.loginLoading=false
+      const userInfo = await this.$http({
         method: 'POST',
         // url: 'http://toutiao.course.itcast.cn/mp/v1_0/authorizations',
         url: '/authorizations',
         data: this.form
       })
-      const userInfo = res.data.data
           // window.localStorage.setItem('user_info', JSON.stringify(userInfo))
           saveUser(userInfo)
           this.$message({
@@ -128,6 +135,7 @@ export default {
           this.$router.push({
             name: 'home'
           })
+          this.loginLoading=true
       } catch (err) {
           this.$message.error('手机号或验证码错误!')
       }

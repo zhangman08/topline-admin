@@ -6,8 +6,16 @@ import './styles/index.less'
 import 'nprogress/nprogress.css'
 import axios from 'axios'
 import { getUser, removeUser } from '@/utils/auth'
+import JSONbig from 'json-bigint'
 import router from './router'
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
+axios.defaults.transformResponse = [function (data) {
+  try {
+    return JSONbig.parse(data)
+  }catch (err) {
+    return data
+  }
+}]
 // 添加请求拦截器
 axios.interceptors.request.use(config => {
   // 在发送请求之前做些什么

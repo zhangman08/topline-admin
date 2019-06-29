@@ -134,8 +134,8 @@ export default {
           })
           this.$router.push({
             name: 'home'
-          })
-          this.loginLoading=true
+        })
+            this.loginLoading = true
       } catch (err) {
           this.$message.error('手机号或验证码错误!')
       }

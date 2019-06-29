@@ -96,9 +96,9 @@
         </el-table-column>
         <el-table-column
           label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-button size="mini" type="primary" plain>修改</el-button>
-            <el-button size="mini" type="danger" plain>删除</el-button>
+            <el-button size="mini" type="danger" plain @click="handlDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -165,6 +165,32 @@ export default {
     this.loadChannels()
   },
   methods: {
+    async handlDelete (item) {
+      try {
+          await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          await this.$http({
+          method:'DELETE',
+          url: `/articles/${item.id}`
+          })
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          this.loadArticles()     
+      }catch (err) {
+        if (err === 'cancel') {
+          return this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        } 
+        this.$message.error('删除失败')
+      }
+  },
     handleDateChange (value) {
       this.filterParams.begin_pubdate = value[0]
       this.filterParams.end_pubdate = value[1]
@@ -200,7 +226,7 @@ export default {
         params: {
           page: this.page,
           per_page: this.pageSize, // 每页大小
-          ... filterData
+          ...filterData
         }
       })
       this.articles = data.results

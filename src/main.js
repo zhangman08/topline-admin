@@ -7,12 +7,13 @@ import 'nprogress/nprogress.css'
 import axios from 'axios'
 import { getUser, removeUser } from '@/utils/auth'
 import JSONbig from 'json-bigint'
+import store from './store'
 import router from './router'
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
 axios.defaults.transformResponse = [function (data) {
   try {
     return JSONbig.parse(data)
-  }catch (err) {
+  } catch (err) {
     return data
   }
 }]
@@ -53,5 +54,6 @@ Vue.prototype.$http = axios
 Vue.config.productionTip = false
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

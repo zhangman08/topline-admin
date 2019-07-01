@@ -22,17 +22,7 @@
     </el-radio-group>
   </el-form-item>
   <el-form-item label="频道">
-    <!-- <el-select v-model="filterParams.channel_id" placeholder="请选择活动区域">
-      <el-option label="区域一" value="shanghai"></el-option>
-      <el-option label="区域二" value="beijing"></el-option>
-    </el-select> -->
-    <el-select v-model="filterParams.channel_id" clearable>
-      <el-option
-      v-for="item in channels"
-      :key="item.id"
-      :label="item.name"
-      :value="item.id"></el-option>
-    </el-select>
+    <article-channel v-model="filterParams.channel_id"></article-channel>
   </el-form-item>
   <el-form-item label="时间">
         <el-date-picker
@@ -97,7 +87,12 @@
         <el-table-column
           label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" plain>修改</el-button>
+            <el-button
+            size="mini"
+            type="primary"
+            plain
+            @click="$router.push(`/publish/${scope.row.id}`)"
+            >修改</el-button>
             <el-button size="mini" type="danger" plain @click="handlDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -112,15 +107,18 @@
         :disabled="articleLoading"
         @current-change="handleCurrentChange">
       </el-pagination>
-      <!-- /数据分页 -->
     </el-card>
     <!-- /文章列表 -->
   </div>
 </template>
 
 <script>
+import ArticleChannel from '@/components/article-channel'
 export default {
   name: 'ArticleList',
+  components: {
+    ArticleChannel
+  },
   data () {
     return {
       articles: [],
@@ -156,13 +154,11 @@ export default {
         begin_pubdate: '',
         end_pubdate: ''
       },
-      range_date: '',
-      channels: []
+      range_date: ''
     }
   },
   created () {
     this.loadArticles()
-    this.loadChannels()
   },
   methods: {
     async handlDelete (item) {
@@ -194,18 +190,6 @@ export default {
     handleDateChange (value) {
       this.filterParams.begin_pubdate = value[0]
       this.filterParams.end_pubdate = value[1]
-    },
-    async loadChannels () {
-      try {
-        const data = await this.$http({
-          method: 'GET',
-          url: '/channels'
-        })
-        this.channels = data.channels
-      } catch (err) {
-        console.log(err)
-        this.$messsage.error('获取频道数据失败')
-      }
     },
     handleFilter () {
       this.page = 1

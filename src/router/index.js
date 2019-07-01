@@ -29,6 +29,21 @@ const router = new Router({
           name: 'article',
           path: '/article',
           component: () => import('@/views/article')
+        },
+        {
+          name: 'publish-edit',
+          path: '/publish/:id',
+          component: () => import('@/views/publish')
+        },
+        {
+          name: 'comment',
+          path: '/comment',
+          component: () => import('@/views/comment')
+        },
+        {
+          name: 'account',
+          path: '/account',
+          component: () => import('@/views/account')
         }
       ]
     },
